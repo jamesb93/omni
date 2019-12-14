@@ -98,9 +98,9 @@ add_library(${PROJECT} MODULE ${FILENAME})
 #Set all proper linker flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    target_link_libraries(${PROJECT} "-L'${WORKING_FOLDER}/lib' -Wl,-rpath,'@loader_path/lib' -l${PROJECT}")
+    target_link_libraries(${PROJECT} "-o lib/lib${PROJECT}.a")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT} "-L'${WORKING_FOLDER}/lib' -Wl,--export-dynamic -Wl,-rpath,'$ORIGIN/lib' -l${PROJECT} -ldl")
+    target_link_libraries(${PROJECT} "-o lib/lib${PROJECT}.a -Wl,--export-dynamic")
 endif()
 
 
@@ -113,9 +113,9 @@ if(SUPERNOVA)
     #Set all proper linker flags for supernova build
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-        target_link_libraries(${PROJECT}_supernova "-L'${WORKING_FOLDER}/lib' -Wl,-rpath,'@loader_path/lib' -l${PROJECT}_supernova")
+        target_link_libraries(${PROJECT}_supernova "-o lib/lib${PROJECT}_supernova.a")
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        target_link_libraries(${PROJECT}_supernova "-L'${WORKING_FOLDER}/lib' -Wl,--export-dynamic -Wl,-rpath,'$ORIGIN/lib' -l${PROJECT}_supernova -ldl")
+        target_link_libraries(${PROJECT}_supernova "-o lib/lib${PROJECT}_supernova.a -Wl,--export-dynamic")
     endif()
 
 endif()

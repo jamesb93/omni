@@ -11,12 +11,12 @@ const default_sc_path = "~/.nimble/pkgs/omni-" & omni_ver & "/deps/supercollider
 
 when defined(Linux):
     const default_extensions_path = "~/.local/share/SuperCollider/Extensions"
-    const shared_lib_extension = ".so"
+    #const shared_lib_extension = ".so"
     const ugen_extension = ".so"
 
 when defined(MacOSX) or defined(MacOS):
     const default_extensions_path = "~/Library/Application Support/SuperCollider/Extensions"
-    const shared_lib_extension = ".dylib"
+    #const shared_lib_extension = ".dylib"
     const ugen_extension = ".scx"
 
 proc printErrorMsg(msg : string) : void =
@@ -110,8 +110,10 @@ proc omnicollider(file : seq[string], sc_path : string = default_sc_path, extens
     # I'm not 100% sure on deadCodeElim:on #
     ########################################
 
+    echo "nim c --import:omni --app:staticlib --gc:none --noMain --passC:-march=" & $architecture & " -d:omnicli -d:tempDir=" & $fullPathToNewFolderShell & " -d:supercollider -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & ".a" & " --outdir:" & $fullPathToNewFolderShell & " " & $fullPathToOriginalNimFileShell
+
     #Compile nim file. Only pass the -d:omnicli and -d:tempDir flag here, so it generates the IO.txt file.
-    let failedNimCompilation = execCmd("nim c --import:omni --app:lib --gc:none --noMain --hints:off --warning[UnusedImport]:off --deadCodeElim:on --passC:-march=" & $architecture & " -d:omnicli -d:tempDir=" & $fullPathToNewFolderShell & " -d:supercollider -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & $shared_lib_extension & " --outdir:" & $fullPathToNewFolderShell & "/lib " & $fullPathToOriginalNimFileShell)
+    let failedNimCompilation = execCmd("nim c --import:omni --app:staticlib --gc:none --noMain --passC:-march=" & $architecture & " -d:omnicli -d:tempDir=" & $fullPathToNewFolderShell & " -d:supercollider -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & ".a" & " --outdir:" & $fullPathToNewFolderShell & " " & $fullPathToOriginalNimFileShell)
 
     #error code from execCmd is usually some 8bit number saying what error arises. I don't care which one for now.
     if failedNimCompilation > 0:
@@ -121,7 +123,7 @@ proc omnicollider(file : seq[string], sc_path : string = default_sc_path, extens
     #Also for supernova
     if supernova:
         #supernova gets passed both supercollider (which turns on the rt_alloc) and supernova (for buffer handling) flags
-        let failedNimCompilation_supernova = execCmd("nim c --import:omni --app:lib --gc:none --noMain --hints:off --warning[UnusedImport]:off --deadCodeElim:on --passC:-march=" & $architecture & " -d:supercollider -d:supernova -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & "_supernova" & $shared_lib_extension & " --outdir:" & $fullPathToNewFolderShell & "/lib " & $fullPathToOriginalNimFileShell)
+        let failedNimCompilation_supernova = execCmd("nim c --import:omni --app:staticlib --gc:none --noMain --hints:off --warning[UnusedImport]:off --deadCodeElim:on --passC:-march=" & $architecture & " -d:supercollider -d:supernova -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & "_supernova.a --outdir:" & $fullPathToNewFolderShell & "/lib " & $fullPathToOriginalNimFileShell)
         
         #error code from execCmd is usually some 8bit number saying what error arises. I don't care which one for now.
         if failedNimCompilation_supernova > 0:
@@ -131,7 +133,7 @@ proc omnicollider(file : seq[string], sc_path : string = default_sc_path, extens
     # ================ #
     #  RETRIEVE I / O  #
     # ================ #
-    
+    #[
     let 
         io_file = readFile($fullPathToNewFolder & "/IO.txt")
         io_file_seq = io_file.split('\n')
@@ -320,6 +322,8 @@ proc omnicollider(file : seq[string], sc_path : string = default_sc_path, extens
         removeDir(fullPathToNewFolder)
 
     printDone("The " & $nimFileName & " UGen has been correctly built and installed in " & $expanded_extensions_path & ".")
+
+    ]#
 
     
 
