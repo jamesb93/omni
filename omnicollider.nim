@@ -109,11 +109,12 @@ proc omnicollider(file : seq[string], sc_path : string = default_sc_path, extens
     ########################################
     # I'm not 100% sure on deadCodeElim:on #
     ########################################
-
-    echo "nim c --import:omni --app:staticlib --gc:none --noMain --passC:-march=" & $architecture & " -d:omnicli -d:tempDir=" & $fullPathToNewFolderShell & " -d:supercollider -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & ".a" & " --outdir:" & $fullPathToNewFolderShell & " " & $fullPathToOriginalNimFileShell
+    
+    #Issue when using --outdir with staticlib compilation
+    #https://github.com/nim-lang/Nim/issues/12745
 
     #Compile nim file. Only pass the -d:omnicli and -d:tempDir flag here, so it generates the IO.txt file.
-    let failedNimCompilation = execCmd("nim c --import:omni --app:staticlib --gc:none --noMain --passC:-march=" & $architecture & " -d:omnicli -d:tempDir=" & $fullPathToNewFolderShell & " -d:supercollider -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & ".a" & " --outdir:" & $fullPathToNewFolderShell & " " & $fullPathToOriginalNimFileShell)
+    let failedNimCompilation = execCmd("nim c --import:omni --app:staticlib --gc:none --noMain --hints:off --warning[UnusedImport]:off --deadCodeElim:on --passC:-march=" & $architecture & " -d:omnicli -d:tempDir=" & $fullPathToNewFolderShell & " -d:supercollider -d:release -d:danger --checks:off --assertions:off --opt:speed --out:lib" & $nimFileName & ".a" & " --outdir:" & $fullPathToNewFolderShell & "/lib " & $fullPathToOriginalNimFileShell)
 
     #error code from execCmd is usually some 8bit number saying what error arises. I don't care which one for now.
     if failedNimCompilation > 0:
